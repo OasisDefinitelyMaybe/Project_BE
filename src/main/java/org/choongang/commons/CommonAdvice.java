@@ -22,7 +22,6 @@ public class CommonAdvice {
     private final Utils utils;
     private final MessageSource messageSource;
 
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<JSONData> errorHandler(Exception e) {
 
@@ -37,12 +36,19 @@ public class CommonAdvice {
                 Map<String, List<String>> messages = utils.getErrorMessages(errors);
                 if (messages != null && !messages.isEmpty()) message = messages;
             }
+
+            if (commonException.isMessageCode()) {
+                message = messageSource.getMessage(commonException.getMessage(), null, null);
+            }
+
         } else if (e instanceof AccessDeniedException) {
             status = HttpStatus.UNAUTHORIZED;
         } else if (e instanceof BadCredentialsException) { // 아아디와 비번 불일치
             status = HttpStatus.BAD_REQUEST;
             message = messageSource.getMessage("Fail.login.credential", null, null);
         }
+
+
 
         e.printStackTrace();
 
